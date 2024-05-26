@@ -36,6 +36,8 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
     name = entry.data[CONF_NAME]
 
+    entities.append(ProgramListSelect(entry, name, controller, coordinator))
+
     for _, program in controller.programs.items():
         entities.append(ProgramRestrictionsSelect(entry, name, program, coordinator))
         entities.append(ProgramTypeSelect(entry, name, program, coordinator))
@@ -287,4 +289,59 @@ class ProgramStartTimeOffsetTypeSelect(
                 value = START_TIME_SUNSET
 
         await self._program.set_program_start_time_offset_type(self._start_index, value)
+        await self._coordinator.async_request_refresh()
+
+
+class ProgramListSelect(
+    OpenSprinklerSelect, SelectEntity
+):
+    """Represent select for the list of programs."""
+
+    def __init__(self, entry, name, controller, coordinator):
+        """Set up a new OpenSprinkler program select for the list of programs."""
+        self._entry = entry
+        self._name = name
+        self._controller = controller
+        self._coordinator = coordinator
+        self._entity_type = "select"
+        self._option = ""
+
+    @property
+    def name(self) -> str:
+        """Return the name of this select."""
+        return f"{self._name} Program List"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(
+            f"{self._entry.unique_id}_{self._entity_type}_{self._name}"
+        )
+
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set enabled by default."""
+        return True
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        return "mdi:list-box"
+
+    @property
+    def options(self) -> list[str]:
+        """A list of available options as strings"""
+        self._program_list = []
+        for _, program in self._controller.programs.items():
+            self._program_list.append(program.name)
+        return self._program_list
+
+    @property
+    def current_option(self) -> str:
+        """The current select option"""
+        return self._program_list[0] if self._option == "" else self._option
+
+    async def async_select_option(self, option: str) -> None:
+        """Change the selected option."""
+        self._option = option
         await self._coordinator.async_request_refresh()
