@@ -334,6 +334,7 @@ class ProgramListSelect(
         self._program_list = []
         for _, program in self._controller.programs.items():
             self._program_list.append(program.name)
+        self._program_list.append("Run Once")
         return self._program_list
 
     @property
