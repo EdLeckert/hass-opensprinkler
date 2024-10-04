@@ -6,6 +6,7 @@ from datetime import timedelta
 
 import async_timeout
 from aiohttp.client_exceptions import InvalidURL
+from homeassistant.components.update import UpdateEntityFeature
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONF_NAME,
@@ -15,7 +16,6 @@ from homeassistant.const import (
     CONF_VERIFY_SSL,
 )
 from homeassistant.core import HomeAssistant, ServiceCall
-from homeassistant.components.update import UpdateEntityFeature
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.entity_platform import async_get_platforms
@@ -296,11 +296,13 @@ class OpenSprinklerTime(OpenSprinklerEntity):
 
 class OpenSprinklerControllerEntity:
     """Define OpenSprinkler Controller entity."""
+
+    # Kludge: Can only use domain from base components in services.yaml filter, so using "update" domain.
     _attr_supported_features = UpdateEntityFeature.PROGRESS
 
     @property
     def supported_features(self) -> UpdateEntityFeature:
-        """Show 'Continue running stations' only for run Controller service. Kludge: can only use domain from base components."""
+        """Show 'Continue running stations' only for run Controller service."""
         return self._attr_supported_features
 
     async def run(self, run_seconds=None, continue_running_stations=None):
