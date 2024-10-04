@@ -15,6 +15,7 @@ from homeassistant.const import (
     CONF_VERIFY_SSL,
 )
 from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.components.update import UpdateEntityFeature
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.entity_platform import async_get_platforms
@@ -294,6 +295,14 @@ class OpenSprinklerTime(OpenSprinklerEntity):
 
 
 class OpenSprinklerControllerEntity:
+    """Define OpenSprinkler Controller entity."""
+    _attr_supported_features = UpdateEntityFeature.PROGRESS
+
+    @property
+    def supported_features(self) -> UpdateEntityFeature:
+        """Show 'Continue running stations' only for run Controller service. Kludge: can only use domain from base components."""
+        return self._attr_supported_features
+
     async def run(self, run_seconds=None, continue_running_stations=None):
         """Run once program."""
         if run_seconds is None or (
@@ -317,7 +326,7 @@ class OpenSprinklerControllerEntity:
                 run_seconds_list.append(
                     seconds
                     if seconds is not None
-                    else (0 if continue_running_stations else station.seconds_remaining)
+                    else (station.seconds_remaining if continue_running_stations else 0)
                 )
             await self._controller.run_once_program(run_seconds_list)
             await self._coordinator.async_request_refresh()
@@ -335,7 +344,7 @@ class OpenSprinklerControllerEntity:
                 run_seconds_list.append(
                     run_seconds_by_index.get(station.index)
                     if run_seconds_by_index.get(station.index) is not None
-                    else (0 if continue_running_stations else station.seconds_remaining)
+                    else (station.seconds_remaining if continue_running_stations else 0)
                 )
 
             await self._controller.run_once_program(run_seconds_list)

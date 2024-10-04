@@ -16,6 +16,9 @@ run:
           mode: slider
           unit_of_measurement: "s"
     continue_running_stations:
+      filter:
+        supported_features:
+          - update.UpdateEntityFeature.PROGRESS
       example: False
       selector:
         boolean:
