@@ -297,12 +297,13 @@ class OpenSprinklerTime(OpenSprinklerEntity):
 class OpenSprinklerControllerEntity:
     """Define OpenSprinkler Controller entity."""
 
-    # Kludge: Can only use domain from base components in services.yaml filter, so using "update" domain.
-    _attr_supported_features = UpdateEntityFeature.PROGRESS
+    # Kludge: Can only use domains from base components in services.yaml filter, so borrowing from "update" domain.
+    # Run service supports run_seconds and continue_running_stations parameters
+    _attr_supported_features = UpdateEntityFeature.PROGRESS | UpdateEntityFeature.BACKUP
 
     @property
     def supported_features(self) -> UpdateEntityFeature:
-        """Show 'Continue running stations' only for run Controller service."""
+        """Show 'run_seconds' and 'continue_running_stations' for run Controller service."""
         return self._attr_supported_features
 
     async def run(self, run_seconds=None, continue_running_stations=None):
@@ -384,6 +385,17 @@ class OpenSprinklerControllerEntity:
 
 
 class OpenSprinklerProgramEntity:
+    """Define OpenSprinkler Program entity."""
+
+    # Kludge: Can only use domains from base components in services.yaml filter, so borrowing from "update" domain.
+    # Run service supports no parameters
+    _attr_supported_features = None
+
+    @property
+    def supported_features(self) -> UpdateEntityFeature:
+        """Show no parameters for run Program service."""
+        return self._attr_supported_features
+
     @property
     def extra_state_attributes(self):
         attributes = {"opensprinkler_type": "program"}
@@ -405,6 +417,17 @@ class OpenSprinklerProgramEntity:
 
 
 class OpenSprinklerStationEntity:
+    """Define OpenSprinkler Station entity."""
+
+    # Kludge: Can only use domains from base components in services.yaml filter, so borrowing from "update" domain.
+    # Run service supports run_seconds parameter
+    _attr_supported_features = UpdateEntityFeature.PROGRESS
+
+    @property
+    def supported_features(self) -> UpdateEntityFeature:
+        """Show 'run_seconds' for run Station service."""
+        return self._attr_supported_features
+
     @property
     def extra_state_attributes(self):
         attributes = {"opensprinkler_type": "station"}

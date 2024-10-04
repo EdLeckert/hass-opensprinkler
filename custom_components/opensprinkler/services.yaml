@@ -8,6 +8,9 @@ run:
     device:
   fields:
     run_seconds:
+      filter:
+        supported_features:
+          - update.UpdateEntityFeature.PROGRESS
       example: 60
       selector:
         number:
@@ -18,7 +21,7 @@ run:
     continue_running_stations:
       filter:
         supported_features:
-          - update.UpdateEntityFeature.PROGRESS
+          - update.UpdateEntityFeature.BACKUP
       example: False
       selector:
         boolean:
